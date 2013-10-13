@@ -136,7 +136,9 @@ function HljsCtrl ($hljsCache) {
   };
 }])
 
-.directive('source', [function () {
+.directive('source', [
+    '$compile',
+    function ($compile) {
   return {
     require: 'hljs',
     restrict: 'A',
@@ -145,6 +147,7 @@ function HljsCtrl ($hljsCache) {
       scope.$watch(iAttrs.source, function (newCode, oldCode) {
         if (newCode) {
           ctrl.highlight(newCode);
+          $compile(iElm.contents())(scope);
         }
         else {
           ctrl.clear();
@@ -155,8 +158,8 @@ function HljsCtrl ($hljsCache) {
 }])
 
 .directive('include', [
-         '$http', '$templateCache', '$q',
-function ($http,   $templateCache,   $q) {
+         '$http', '$templateCache', '$q', '$compile',
+function ($http,   $templateCache,   $q, $compile) {
   return {
     require: 'hljs',
     restrict: 'A',
@@ -188,7 +191,7 @@ function ($http,   $templateCache,   $q) {
               });
               templateCachePromise = dfd.promise;
             }
-            
+
             $q.when(templateCachePromise)
             .then(function (code) {
               if (!code) {
@@ -207,7 +210,8 @@ function ($http,   $templateCache,   $q) {
 
               code = code.replace(/^\r\n|\r|\n/, '');
               ctrl.highlight(code);
-            });
+              $compile(iElm.contents())(scope);
+              });
           }
           else {
             ctrl.clear();
